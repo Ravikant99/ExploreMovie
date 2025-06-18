@@ -92,6 +92,9 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation (libs.androidx.activity.compose.v180)
+    implementation (libs.ui)
+    implementation (libs.material3)
     //firebase
 //    implementation(platform(libs.firebase.bom))
 //    implementation(libs.firebase.auth.ktx)

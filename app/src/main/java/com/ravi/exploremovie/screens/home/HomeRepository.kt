@@ -59,6 +59,13 @@ class HomeRepository {
         }
     }
 
+    suspend fun getSearchData(query: String,page: Int): Result<MovieListResponse> = safeApiCall {
+        withContext(Dispatchers.IO) {
+            webServiceConnector.searchMovies(query,page)
+        }
+    }
+
+
     private suspend inline fun <T> safeApiCall(crossinline apiCall: suspend () -> T): Result<T> {
         return try {
             val response = apiCall()

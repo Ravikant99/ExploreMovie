@@ -48,7 +48,8 @@ interface ApiServices {
     suspend fun searchMovies(
         @Query("api_key") apiKey: String, 
         @Query("query") query: String,
-        @Query("page") page: Int = 1
+        @Query("page") page: Int = 1,
+        @Query("include_adult") includeAdult: Boolean = false
     ): MovieListResponse
     
     @GET("movie/{movie_id}")

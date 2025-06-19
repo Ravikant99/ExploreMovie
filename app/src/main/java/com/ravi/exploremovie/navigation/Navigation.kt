@@ -14,6 +14,7 @@ import com.ravi.exploremovie.screens.details.MovieDetailsScreen
 import com.ravi.exploremovie.screens.details.SeeMoreScreen
 import com.ravi.exploremovie.screens.home.HomeScreen
 import com.ravi.exploremovie.screens.onboarding.OnboardingScreen
+import com.ravi.exploremovie.screens.player.youtube.YoutubePlayerScreen
 import com.ravi.exploremovie.screens.search.SearchScreen
 
 
@@ -74,6 +75,19 @@ fun Navigation() {
                 navController = navController, 
                 contentType = contentType,
                 title = title
+            )
+        }
+
+        composable(
+            route = "${ScreenRoutes.YoutubePlayerScreen.route}/{videoId}",
+            arguments = listOf(
+                navArgument("videoId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val videoId = backStackEntry.arguments?.getString("videoId") ?: ""
+            YoutubePlayerScreen(
+                videoId = videoId,
+                onBackPressed = { navController.popBackStack() }
             )
         }
     }

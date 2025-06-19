@@ -10,6 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.ravi.exploremovie.utils.ConstantUtils
 import com.ravi.exploremovie.utils.HttpLoggingUtils
+import com.ravi.exploremovie.video.data.model.TrailerResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
@@ -94,5 +95,10 @@ class WebServiceConnector private constructor() {
     suspend fun getMovieDetails(movieId: Int): MovieDetails {
         Log.d(TAG, "Fetching movie details for ID: $movieId")
         return apiService.getMovieDetails(movieId, ConstantUtils.getApiKey())
+    }
+
+    suspend fun getMovieTrailer(movieId: Int): TrailerResponse {
+        Log.d(TAG, "Fetching movie details for ID: $movieId")
+        return apiService.getMovieTrailer(movieId,ConstantUtils.getApiKey())
     }
 }

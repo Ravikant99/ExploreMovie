@@ -45,6 +45,8 @@ import com.ravi.exploremovie.ui.theme.*
 import com.ravi.exploremovie.utils.ConstantUtils
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import com.ravi.exploremovie.screenRoutes.ScreenRoutes
+import com.ravi.exploremovie.webServices.Resource
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -58,11 +60,13 @@ fun MovieDetailsScreen(
     val currentMovieDetails by viewModel.currentMovieDetails.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val trailerState by viewModel.trailerState.collectAsState()
 
     // Fetch movie details if we have a valid ID
     LaunchedEffect(movieId) {
         if (movieId > 0) {
             viewModel.fetchMovieDetails(movieId)
+            viewModel.fetchMovieTrailer(movieId)
         }
     }
 
@@ -304,7 +308,28 @@ fun MovieDetailsScreen(
 
                             // Play button
                             Button(
-                                onClick = { /* Handle play */ },
+                                onClick = {
+                                    when (trailerState) {
+                                        is Resource.Success -> {
+                                            val trailerKey = viewModel.getFirstTrailerKey()
+                                            if (trailerKey != null) {
+                                                navController.navigate("${ScreenRoutes.YoutubePlayerScreen.route}/$trailerKey")
+                                            } else {
+                                                // Show "No YouTube trailer available" message
+                                            }
+                                        }
+                                        is Resource.Error -> {
+                                            // Show error message
+                                        }
+//                                        Resource.Loading() -> {
+//                                            // Optionally show loading state
+//                                        }
+
+                                        is Resource.Error -> TODO()
+                                        is Resource.Loading -> TODO()
+                                        is Resource.Success -> TODO()
+                                    }
+                                },
                                 modifier = Modifier
                                     .width(150.dp)
                                     .height(50.dp),

@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.ravi.exploremovie.common.movie.model.MovieListResponse
 import com.ravi.exploremovie.movieDetails.data.model.MovieDetails
+import com.ravi.exploremovie.video.data.model.TrailerResponse
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -62,6 +63,12 @@ class HomeRepository {
     suspend fun getSearchData(query: String,page: Int): Result<MovieListResponse> = safeApiCall {
         withContext(Dispatchers.IO) {
             webServiceConnector.searchMovies(query,page)
+        }
+    }
+
+    suspend fun getMovieTrailer(movieId: Int): Result<TrailerResponse> = safeApiCall {
+        withContext(Dispatchers.IO) {
+            webServiceConnector.getMovieTrailer(movieId)
         }
     }
 

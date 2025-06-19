@@ -95,6 +95,23 @@ dependencies {
     implementation (libs.androidx.activity.compose.v180)
     implementation (libs.ui)
     implementation (libs.material3)
+    //youtube player
+    implementation (libs.youtubecore)
+
+
+        // Coroutines
+        implementation (libs.kotlinx.coroutines.android.v173)
+
+        // Lifecycle (for ViewModel)
+        implementation (libs.androidx.lifecycle.viewmodel.ktx)
+        implementation (libs.androidx.lifecycle.runtime.ktx.v262)
+
+        // Retrofit (if you're using it)
+        implementation (libs.retrofit)
+        implementation (libs.converter.gson)
+
+        // Timber for logging (optional)
+        implementation (libs.timber)
     //firebase
 //    implementation(platform(libs.firebase.bom))
 //    implementation(libs.firebase.auth.ktx)

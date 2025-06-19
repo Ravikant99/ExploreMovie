@@ -3,7 +3,15 @@
 activityComposeVersion = "1.8.0"
 agp = "8.7.3"
 compose = "1.0.0-beta01"
+composeYoutubePlayer = "1.0.0"
 converterGson = "2.9.0"
+gradle = "8.1.4"
+kotlinGradlePlugin = "1.8.22"
+kotlinxCoroutinesAndroidVersion = "1.7.3"
+lifecycleRuntimeKtxVersion = "2.6.2"
+lifecycleViewmodelKtx = "2.9.1"
+timber = "5.0.1"
+youtubeCore = "12.1.0"
 foundation = "1.8.2"
 glide = "4.16.0"
 kotlin = "2.0.0"
@@ -40,9 +48,17 @@ ui = "1.8.3"
 androidx-activity-compose-v180 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
+androidx-lifecycle-runtime-ktx-v262 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 compose = { module = "com.github.bumptech.glide:compose", version.ref = "compose" }
+compose-youtube-player = { module = "com.github.masterjnr:compose-youtube-player", version.ref = "composeYoutubePlayer" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinGradlePlugin" }
+kotlinx-coroutines-android-v173 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroidVersion" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+youtubecore = { module = "com.pierfrancescosoffritti.androidyoutubeplayer:core", version.ref = "youtubeCore" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

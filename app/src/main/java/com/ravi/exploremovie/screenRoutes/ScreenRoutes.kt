@@ -9,4 +9,5 @@ sealed class ScreenRoutes(val route: String) {
     object DetailsScreen : ScreenRoutes("detailsScreen")
     object SearchScreen : ScreenRoutes("searchScreen")
     object SeeMoreScreen : ScreenRoutes("seeMoreScreen")
+    object YoutubePlayerScreen : ScreenRoutes("youtubePlayer")
 }

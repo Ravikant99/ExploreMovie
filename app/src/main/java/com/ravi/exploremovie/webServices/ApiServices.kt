@@ -4,6 +4,7 @@ import com.ravi.exploremovie.common.movie.model.MovieGenreListResponse
 import com.ravi.exploremovie.common.movie.model.MovieListResponse
 import com.ravi.exploremovie.common.movie.model.PersonListResponse
 import com.ravi.exploremovie.movieDetails.data.model.MovieDetails
+import com.ravi.exploremovie.video.data.model.TrailerResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -58,6 +59,13 @@ interface ApiServices {
         @Query("api_key") apiKey: String,
         @Query("append_to_response") appendToResponse: String = "credits"
     ): MovieDetails
+
+    // Get the trailer
+    @GET("movie/{movie_id}/videos")
+    suspend fun getMovieTrailer(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String
+    ): TrailerResponse
 
 
 

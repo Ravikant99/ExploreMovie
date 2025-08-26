@@ -38,6 +38,7 @@ fun BottomNavigationBar(navController: NavController? = null) {
     val selectedIndex = when {
         currentRoute == ScreenRoutes.HomeScreen.route -> 0
         currentRoute == ScreenRoutes.SearchScreen.route -> 1
+        currentRoute == ScreenRoutes.DownloadScreen.route -> 2
         currentRoute?.contains("detailsScreen") == true -> -1 // No selection for details screen
         else -> 0 // Default to home
     }
@@ -70,6 +71,9 @@ fun BottomNavigationBar(navController: NavController? = null) {
                             }
                             1 -> navController.navigate(ScreenRoutes.SearchScreen.route) {
                                 popUpTo(ScreenRoutes.HomeScreen.route) { inclusive = false }
+                            }
+                            2 -> navController.navigate(ScreenRoutes.DownloadScreen.route) {
+                                popUpTo (ScreenRoutes.DownloadScreen.route ) { inclusive = false}
                             }
                             // Handle other tabs if needed
                         }

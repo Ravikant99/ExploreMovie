@@ -12,6 +12,7 @@ import com.ravi.exploremovie.screens.auth.LoginScreen
 import com.ravi.exploremovie.screens.auth.OtpVerifyScreen
 import com.ravi.exploremovie.screens.details.MovieDetailsScreen
 import com.ravi.exploremovie.screens.details.SeeMoreScreen
+import com.ravi.exploremovie.screens.downloads.DownloadsScreen
 import com.ravi.exploremovie.screens.home.HomeScreen
 import com.ravi.exploremovie.screens.onboarding.OnboardingScreen
 import com.ravi.exploremovie.screens.player.youtube.YoutubePlayerScreen
@@ -44,6 +45,10 @@ fun Navigation() {
         
         composable(route = ScreenRoutes.SearchScreen.route) {
             SearchScreen(navController)
+        }
+
+        composable (route = ScreenRoutes.DownloadScreen.route) {
+            DownloadsScreen(navController)
         }
         
         composable(

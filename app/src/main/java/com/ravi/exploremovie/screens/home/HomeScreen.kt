@@ -106,7 +106,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFF0F0F1E))
-                .padding(bottom = 64.dp) // Leave space for BottomNav
+                .padding(bottom = 64.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
 

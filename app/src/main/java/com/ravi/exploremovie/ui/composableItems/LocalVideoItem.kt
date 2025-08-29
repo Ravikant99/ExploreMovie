@@ -4,6 +4,7 @@ import android.media.browse.MediaBrowser
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,79 +36,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.ravi.exploremovie.common.localVideo.VideoItem
 
-@Composable
-fun LocalVideoItem(
-    thumbnailUrl: String,
-    title: String,
-    duration: String,
-    size: String,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = Modifier
-        .fillMaxWidth()
-        .padding(8.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF2A2C38)
-        )
-        ) {
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            AsyncImage(
-                model = thumbnailUrl,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop)
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column (modifier = Modifier.weight(1f)){
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Row (
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    Text(
-                        text = duration,
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "|",
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = size,
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
-                    )
-                }
-            }
-        }
-    }
-}
 
 
 @Composable
 fun MediaItemCard(
     video: VideoItem,
-    onClick: () -> Unit = {}
+    onClick: (VideoItem) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -115,6 +49,7 @@ fun MediaItemCard(
             .padding(8.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFF2A2C38))
+            .clickable { onClick(video) } // ✅ trigger callback
             .padding(8.dp)
     ) {
         // Thumbnail
@@ -135,7 +70,7 @@ fun MediaItemCard(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Column (modifier = Modifier.weight(1f)){
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = video.name,
                 style = MaterialTheme.typography.bodyLarge.copy(
@@ -147,7 +82,7 @@ fun MediaItemCard(
             )
             Spacer(modifier = Modifier.height(6.dp))
 
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -161,13 +96,14 @@ fun MediaItemCard(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "${formatFileSize(video.size)}",
+                    text = formatFileSize(video.size),
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
                 )
             }
         }
     }
 }
+
 
 // Helpers
 fun formatDuration(durationMs: Long): String {
@@ -189,30 +125,25 @@ fun formatFileSize(size: Long): String {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF1E1E1E)
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFF1E1E1E,
+    name = "Media Item Card"
+)
 @Composable
 fun MediaItemCardPreview() {
-    MediaItemCard(
-        video = VideoItem(
-            uri = Uri.EMPTY,
-            name = "Spider-Man No Way Home Peter Parker Home Return - 24 -05 - 2024 new.mp4",
-            duration = 10_260_00L, // 2h 51m
-            size = 1_910_000_000L, // ~1.78 GB
-            thumbnail = null
+    Box(modifier = Modifier.padding(16.dp)) {
+        MediaItemCard(
+            video = VideoItem(
+                uri = Uri.EMPTY,
+                name = "Spider-Man: No Way Home - Full Movie.mp4",
+                duration = 10_260_00L, // ~2h 51m
+                size = 1_910_000_000L, // ~1.78 GB
+                thumbnail = null
+            ),
+            onClick = { /* No-op for preview */ }
         )
-    )
+    }
 }
 
-
-
-
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewLocalVideoItem() {
-//        LocalVideoItem(
-//            thumbnailUrl = "https://image.tmdb.org/t/p/w500/scFDS0U5uYAjcVTyjNc7GmcZw1q.jpg",
-//            title = "Spider-Man No Way Home Peter Parker- 24 -05 - 2024 new.mp4",
-//            "2:51:05",
-//            "1.78 GB")
-//}
 

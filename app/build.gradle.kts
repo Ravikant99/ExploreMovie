@@ -116,4 +116,8 @@ dependencies {
 //    implementation(platform(libs.firebase.bom))
 //    implementation(libs.firebase.auth.ktx)
 //    implementation(libs.play.services.auth)
+
+    //media3 exoplayer
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
 }

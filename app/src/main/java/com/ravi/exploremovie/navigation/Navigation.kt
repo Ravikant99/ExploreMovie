@@ -1,5 +1,6 @@
 package com.ravi.exploremovie.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,6 +18,7 @@ import com.ravi.exploremovie.screens.home.HomeScreen
 import com.ravi.exploremovie.screens.onboarding.OnboardingScreen
 import com.ravi.exploremovie.screens.player.youtube.YoutubePlayerScreen
 import com.ravi.exploremovie.screens.search.SearchScreen
+import com.ravi.exploremovie.screens.player.exoplayer.PlayerScreen
 
 
 @Composable
@@ -93,6 +95,18 @@ fun Navigation() {
             YoutubePlayerScreen(
                 videoId = videoId,
                 onBackPressed = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = "${ScreenRoutes.PlayerScreen}player/{videoUri}",
+            arguments = listOf(navArgument("videoUri") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val uriString = backStackEntry.arguments?.getString("videoUri") ?: return@composable
+            val videoUri = Uri.parse(uriString)
+
+            PlayerScreen(
+                videoUri = videoUri,
+                onBack = { navController.popBackStack() }
             )
         }
     }

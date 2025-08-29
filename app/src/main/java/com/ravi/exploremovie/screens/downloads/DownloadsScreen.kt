@@ -28,12 +28,15 @@ import com.ravi.exploremovie.ui.composableItems.MediaItemCard
 import com.ravi.exploremovie.ui.theme.DarkBackground
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.ravi.exploremovie.common.localVideo.VideoItem
+import com.ravi.exploremovie.screenRoutes.ScreenRoutes
 
 
 @Composable
@@ -44,7 +47,7 @@ fun DownloadsScreen(
     val context = LocalContext.current
     val videos by viewModel.videos.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
-
+    var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
     // Choose permission depending on Android version
     val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Manifest.permission.READ_MEDIA_VIDEO
@@ -132,9 +135,14 @@ fun DownloadsScreen(
                 else -> {
                     LazyColumn {
                         items(videos) { video ->
-                            MediaItemCard(video)
+                            MediaItemCard(
+                                video = video,
+                                onClick = {
+                                    // Navigate to PlayerScreen with video URI
+                                    navController.navigate("${ScreenRoutes.PlayerScreen}player/${Uri.encode(video.uri.toString())}")
+                                }
+                            )
                         }
-
                     }
                 }
             }

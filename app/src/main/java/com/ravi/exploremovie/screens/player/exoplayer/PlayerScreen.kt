@@ -26,6 +26,9 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.ui.platform.LocalLifecycleOwner
 
 @Composable
 fun PlayerScreen(
@@ -34,6 +37,7 @@ fun PlayerScreen(
 ) {
     val context = LocalContext.current
     val activity = context as Activity
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     // Force landscape + keep screen awake + immersive fullscreen
     DisposableEffect(Unit) {
@@ -73,6 +77,36 @@ fun PlayerScreen(
     }
 
     var isPlaying by remember { mutableStateOf(true) }
+
+    // Handle lifecycle events to pause/resume player
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    // Pause playback when activity goes to background
+                    exoPlayer.playWhenReady = false
+                }
+                Lifecycle.Event.ON_RESUME -> {
+                    // Resume playback when activity comes back to foreground
+                    exoPlayer.playWhenReady = true
+                }
+                Lifecycle.Event.ON_STOP -> {
+                    // Stop playback when activity is no longer visible
+                    exoPlayer.pause()
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    // Release player when activity is destroyed
+                    exoPlayer.release()
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     DisposableEffect(exoPlayer) {
         val listener = object : Player.Listener {
@@ -115,5 +149,4 @@ fun PlayerScreen(
         }
     }
 }
-
 

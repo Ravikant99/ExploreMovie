@@ -7,9 +7,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +50,10 @@ fun DownloadsScreen(
     val videos by viewModel.videos.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
+    
+    // Track if videos have been loaded at least once - survives recomposition
+    var hasLoadedOnce by rememberSaveable { mutableStateOf(false) }
+    
     // Choose permission depending on Android version
     val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Manifest.permission.READ_MEDIA_VIDEO
@@ -60,19 +66,24 @@ fun DownloadsScreen(
     ) { isGranted ->
         if (isGranted) {
             viewModel.loadVideos()
+            hasLoadedOnce = true
         } else {
             Toast.makeText(context, "Permission denied!", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Request/check permission when screen opens
+    // Request/check permission and load videos only on first composition
     LaunchedEffect(Unit) {
-        when {
-            ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED -> {
-                viewModel.loadVideos()
-            }
-            else -> {
-                launcher.launch(permission)
+        // Only load if we haven't loaded before
+        if (!hasLoadedOnce) {
+            when {
+                ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED -> {
+                    viewModel.loadVideos()
+                    hasLoadedOnce = true
+                }
+                else -> {
+                    launcher.launch(permission)
+                }
             }
         }
     }
@@ -120,7 +131,22 @@ fun DownloadsScreen(
                     textAlign = TextAlign.Center
                 )
 
-                Box(modifier = Modifier.size(40.dp))
+                // Refresh button to manually reload videos
+                IconButton(
+                    onClick = { 
+                        viewModel.refreshVideos()
+                    },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color(0x33000000))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refresh",
+                        tint = Color.White
+                    )
+                }
             }
 
             when {

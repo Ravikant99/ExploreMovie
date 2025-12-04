@@ -28,6 +28,9 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
     private val _hasPermission = MutableLiveData(true) // default assume true
     val hasPermission: LiveData<Boolean> = _hasPermission
 
+    // Track if videos have been loaded to avoid unnecessary reloading
+    private var videosLoaded = false
+
     fun checkPermission(context: Context) {
         val granted = ContextCompat.checkSelfPermission(
             context,
@@ -37,13 +40,23 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
         _hasPermission.value = granted
     }
 
-    fun loadVideos() {
+    fun loadVideos(forceReload: Boolean = false) {
+        // Skip loading if already loaded and not forcing reload
+        if (videosLoaded && !forceReload) {
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             _isLoading.postValue(true)  // show loader
             val videoList = getAllVideos(getApplication<Application>().applicationContext)
             _videos.postValue(videoList)
             _isLoading.postValue(false) // hide loader
+            videosLoaded = true
         }
+    }
+
+    fun refreshVideos() {
+        loadVideos(forceReload = true)
     }
 }
 

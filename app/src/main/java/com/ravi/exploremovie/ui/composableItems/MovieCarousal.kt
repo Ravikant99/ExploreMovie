@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -41,14 +42,6 @@ fun MovieCarousal(
     pagerState: PagerState = rememberPagerState { banners.size },
     onBannerClick: (MovieResult) -> Unit = {}
 ) {
-    // Auto-scroll logic
-//    LaunchedEffect(key1 = pagerState.currentPage, key2 = banners.size) {
-//        if (banners.isNotEmpty()) {
-//            delay(10_000L)
-//            val nextPage = (pagerState.currentPage + 1) % banners.size
-//            pagerState.animateScrollToPage(nextPage)
-//        }
-//    }
 
     HorizontalPager(
         state = pagerState,
@@ -61,7 +54,6 @@ fun MovieCarousal(
         val scale = if (isSelected) 1f else 0.9f
         val alpha = if (isSelected) 1f else 0.5f
 
-        // 🔧 Wrap each item in Box to center it
         Box(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -80,8 +72,8 @@ fun MovieCarousal(
 
 @Composable
 fun MovieBannerCard(
-    movieResult: MovieResult, 
-    scale: Float, 
+    movieResult: MovieResult,
+    scale: Float,
     alpha: Float,
     onClick: () -> Unit = {}
 ) {
@@ -98,59 +90,58 @@ fun MovieBannerCard(
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            val imageUrl = if (movieResult.posterPath != null) {
-                "${ConstantUtils.BASE_URL_IMAGE}${movieResult.posterPath}"
-            } else {
-                null // will use the placeholder/error image
-            }
-            
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = movieResult.title,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier.fillMaxSize(),
-                placeholder = painterResource(id = R.drawable.spiderman),
-                error = painterResource(id = R.drawable.spiderman)
-            )
-            // Bottom gradient overlay
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .align(Alignment.BottomCenter)
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Black.copy(alpha = 0.7f), Color.Transparent),
-                            startY = Float.POSITIVE_INFINITY,
-                            endY = 0f
+            Box(modifier = Modifier.fillMaxSize()) {
+                val imageUrl = if (movieResult.posterPath != null) {
+                    "${ConstantUtils.BASE_URL_IMAGE}${movieResult.posterPath}"
+                } else {
+                    null // will use the placeholder/error image
+                }
+                
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = movieResult.title,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.fillMaxSize(),
+                    placeholder = painterResource(id = R.drawable.placeholder_movie),
+                    error = painterResource(id = R.drawable.placeholder_movie)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Black.copy(alpha = 0.7f), Color.Transparent),
+                                startY = Float.POSITIVE_INFINITY,
+                                endY = 0f
+                            )
                         )
+                )
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = movieResult.title,
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
                     )
-            )
+                    Text(
+                        text = "Release On ${movieResult.releaseDate}",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 14.sp
+                    )
+                }
 
-            // Title and date
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text(
-                    text = movieResult.title,
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Release On ${movieResult.releaseDate}",
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 14.sp
-                )
             }
-
-        }
     }
 }
 

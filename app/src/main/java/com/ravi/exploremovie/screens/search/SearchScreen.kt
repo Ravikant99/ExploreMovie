@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -343,17 +344,18 @@ private fun SearchResultsList(
     onMovieClick: (MovieResult) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyVerticalGrid(
-//                    state = gridState,
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(movies) { movie ->
+    val gridState = rememberLazyGridState()
+    
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(movies) { movie ->
                         MovieCardItem(
                             movie = movie,
                             onItemClick = {
@@ -429,8 +431,8 @@ private fun SearchResultItem(
                     .size(80.dp)
                     .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.spiderman),
-                error = painterResource(R.drawable.profile)
+                placeholder = painterResource(R.drawable.placeholder_movie),
+                error = painterResource(R.drawable.placeholder_movie)
             )
 
             Spacer(modifier = Modifier.width(16.dp))

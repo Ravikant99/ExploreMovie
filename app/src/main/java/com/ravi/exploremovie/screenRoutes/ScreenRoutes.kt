@@ -12,4 +12,5 @@ sealed class ScreenRoutes(val route: String) {
     object SeeMoreScreen : ScreenRoutes("seeMoreScreen")
     object YoutubePlayerScreen : ScreenRoutes("youtubePlayer")
     object PlayerScreen : ScreenRoutes("playerScreen")
+    object ProfileScreen : ScreenRoutes("profileScreen")
 }

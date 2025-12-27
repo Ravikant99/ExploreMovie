@@ -44,17 +44,13 @@ import com.ravi.exploremovie.screenRoutes.ScreenRoutes
 @Composable
 fun DownloadsScreen(
     navController: NavController,
-    viewModel: DownloadsViewModel = viewModel()) {
-
+    viewModel: DownloadsViewModel = viewModel()
+) {
     val context = LocalContext.current
     val videos by viewModel.videos.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
-    
-    // Track if videos have been loaded at least once - survives recomposition
-    var hasLoadedOnce by rememberSaveable { mutableStateOf(false) }
-    
-    // Choose permission depending on Android version
+
     val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Manifest.permission.READ_MEDIA_VIDEO
     } else {
@@ -65,21 +61,19 @@ fun DownloadsScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            viewModel.loadVideos()
-            hasLoadedOnce = true
+            if (!viewModel.isDataLoaded()) {
+                viewModel.loadVideos()
+            }
         } else {
             Toast.makeText(context, "Permission denied!", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Request/check permission and load videos only on first composition
     LaunchedEffect(Unit) {
-        // Only load if we haven't loaded before
-        if (!hasLoadedOnce) {
+        if (!viewModel.isDataLoaded()) {
             when {
                 ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED -> {
                     viewModel.loadVideos()
-                    hasLoadedOnce = true
                 }
                 else -> {
                     launcher.launch(permission)
@@ -160,12 +154,20 @@ fun DownloadsScreen(
 
                 else -> {
                     LazyColumn {
-                        items(videos) { video ->
+                        items(videos.size) { index ->
+                            val video = videos[index]
                             MediaItemCard(
                                 video = video,
                                 onClick = {
-                                    // Navigate to PlayerScreen with video URI
-                                    navController.navigate("${ScreenRoutes.PlayerScreen}player/${Uri.encode(video.uri.toString())}")
+                                    // Navigate to PlayerScreen with video URI, list, titles and index
+                                    val videoUriList = videos.map { it.uri }
+                                    val videoTitlesList = videos.map { it.name }
+                                    val encodedUri = Uri.encode(video.uri.toString())
+                                    val encodedList = Uri.encode(videoUriList.joinToString(",") { it.toString() })
+                                    val encodedTitles = Uri.encode(videoTitlesList.joinToString("|||"))
+                                    navController.navigate(
+                                        "${ScreenRoutes.PlayerScreen}player/$encodedUri/${video.name}/$encodedList/$encodedTitles/$index"
+                                    )
                                 }
                             )
                         }

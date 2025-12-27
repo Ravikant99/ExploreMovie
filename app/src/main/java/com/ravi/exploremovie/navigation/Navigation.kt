@@ -19,6 +19,7 @@ import com.ravi.exploremovie.screens.onboarding.OnboardingScreen
 import com.ravi.exploremovie.screens.player.youtube.YoutubePlayerScreen
 import com.ravi.exploremovie.screens.search.SearchScreen
 import com.ravi.exploremovie.screens.player.exoplayer.PlayerScreen
+import com.ravi.exploremovie.screens.profile.ProfileScreen
 
 
 @Composable
@@ -33,7 +34,7 @@ fun Navigation() {
         composable(route = ScreenRoutes.OnboardingScreen.route) {
             OnboardingScreen(navController)
         }
-        composable(route = ScreenRoutes.HomeScreen.route) {
+        composable(route = ScreenRoutes.HomeScreen.route) { backStackEntry ->
             HomeScreen(navController)
         }
 
@@ -49,8 +50,12 @@ fun Navigation() {
             SearchScreen(navController)
         }
 
-        composable (route = ScreenRoutes.DownloadScreen.route) {
+        composable (route = ScreenRoutes.DownloadScreen.route) { backStackEntry ->
             DownloadsScreen(navController)
+        }
+        
+        composable(route = ScreenRoutes.ProfileScreen.route) {
+            ProfileScreen(navController)
         }
         
         composable(
@@ -98,14 +103,54 @@ fun Navigation() {
             )
         }
         composable(
-            route = "${ScreenRoutes.PlayerScreen}player/{videoUri}",
-            arguments = listOf(navArgument("videoUri") { type = NavType.StringType })
+            route = "${ScreenRoutes.PlayerScreen}player/{videoUri}/{videoTitle}/{videoList}/{videoTitles}/{currentIndex}",
+            arguments = listOf(
+                navArgument("videoUri") { type = NavType.StringType },
+                navArgument("videoTitle") { 
+                    type = NavType.StringType
+                    defaultValue = "Video"
+                },
+                navArgument("videoList") { 
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument("videoTitles") { 
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument("currentIndex") { 
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
         ) { backStackEntry ->
             val uriString = backStackEntry.arguments?.getString("videoUri") ?: return@composable
             val videoUri = Uri.parse(uriString)
+            
+            val videoTitle = backStackEntry.arguments?.getString("videoTitle") ?: "Video"
+            
+            val videoListString = backStackEntry.arguments?.getString("videoList") ?: ""
+            val videoList = if (videoListString.isNotEmpty()) {
+                videoListString.split(",").map { Uri.parse(it) }
+            } else {
+                emptyList()
+            }
+            
+            val videoTitlesString = backStackEntry.arguments?.getString("videoTitles") ?: ""
+            val videoTitles = if (videoTitlesString.isNotEmpty()) {
+                videoTitlesString.split("|||")
+            } else {
+                emptyList()
+            }
+            
+            val currentIndex = backStackEntry.arguments?.getInt("currentIndex") ?: 0
 
             PlayerScreen(
                 videoUri = videoUri,
+                videoTitle = videoTitle,
+                videoList = videoList,
+                videoTitles = videoTitles,
+                currentIndex = currentIndex,
                 onBack = { navController.popBackStack() }
             )
         }

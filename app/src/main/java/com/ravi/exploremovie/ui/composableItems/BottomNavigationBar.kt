@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -39,6 +40,7 @@ fun BottomNavigationBar(navController: NavController? = null) {
         currentRoute == ScreenRoutes.HomeScreen.route -> 0
         currentRoute == ScreenRoutes.SearchScreen.route -> 1
         currentRoute == ScreenRoutes.DownloadScreen.route -> 2
+        currentRoute == ScreenRoutes.ProfileScreen.route -> 3
         currentRoute?.contains("detailsScreen") == true -> -1 // No selection for details screen
         else -> 0 // Default to home
     }
@@ -73,9 +75,11 @@ fun BottomNavigationBar(navController: NavController? = null) {
                                 popUpTo(ScreenRoutes.HomeScreen.route) { inclusive = false }
                             }
                             2 -> navController.navigate(ScreenRoutes.DownloadScreen.route) {
-                                popUpTo (ScreenRoutes.DownloadScreen.route ) { inclusive = false}
+                                popUpTo(ScreenRoutes.HomeScreen.route) { inclusive = false }
                             }
-                            // Handle other tabs if needed
+                            3 -> navController.navigate(ScreenRoutes.ProfileScreen.route) {
+                                popUpTo(ScreenRoutes.HomeScreen.route) { inclusive = false }
+                            }
                         }
                     }
                 },
@@ -83,4 +87,10 @@ fun BottomNavigationBar(navController: NavController? = null) {
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewBottomNavigationBar() {
+    BottomNavigationBar()
 }

@@ -191,17 +191,21 @@ class SeeMoreViewModel : ViewModel() {
     }
 
     fun fetchContentByType(contentType: String, page: Int = 1, isLoadMore: Boolean = false) {
-        _currentContentType = contentType
-        
-        when (contentType) {
-            "popular" -> fetchPopularMovies(page, isLoadMore)
-            "upcoming" -> fetchUpcomingMovies(page, isLoadMore)
-            "top_rated" -> fetchTopRatedMovies(page, isLoadMore)
-            "trending_persons" -> fetchTrendingPersons(page, isLoadMore)
-            else -> {
-                Log.e(TAG, "Unknown content type: $contentType")
-                _error.value = "Unknown content type: $contentType"
+        if (_currentContentType != contentType || isLoadMore || (_movies.value.isEmpty() && _persons.value.isEmpty())) {
+            _currentContentType = contentType
+            
+            when (contentType) {
+                "popular" -> fetchPopularMovies(page, isLoadMore)
+                "upcoming" -> fetchUpcomingMovies(page, isLoadMore)
+                "top_rated" -> fetchTopRatedMovies(page, isLoadMore)
+                "trending_persons" -> fetchTrendingPersons(page, isLoadMore)
+                else -> {
+                    Log.e(TAG, "Unknown content type: $contentType")
+                    _error.value = "Unknown content type: $contentType"
+                }
             }
+        } else {
+            _isInitialLoading.value = false
         }
     }
     

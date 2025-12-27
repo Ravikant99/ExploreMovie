@@ -82,8 +82,8 @@ fun CastMemberItem(
                         contentDescription = name,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
-                        loading = placeholder(R.drawable.profile),
-                        failure = placeholder(R.drawable.profile)
+                        loading = placeholder(R.drawable.placeholder_profile),
+                        failure = placeholder(R.drawable.placeholder_profile)
                     )
                 }
                 profilePath != null -> {
@@ -96,7 +96,7 @@ fun CastMemberItem(
                         contentDescription = name,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
-                        error = painterResource(id = R.drawable.profile)
+                        error = painterResource(id = R.drawable.placeholder_profile)
                     )
                 }
                 localImageRes != null -> {
@@ -111,7 +111,7 @@ fun CastMemberItem(
                 else -> {
                     // Fallback
                     Image(
-                        painter = painterResource(id = R.drawable.profile),
+                        painter = painterResource(id = R.drawable.placeholder_profile),
                         contentDescription = name,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()

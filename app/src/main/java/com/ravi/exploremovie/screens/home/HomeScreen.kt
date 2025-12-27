@@ -49,6 +49,9 @@ import com.ravi.exploremovie.ui.composableItems.MovieCardItem
 import com.ravi.exploremovie.ui.composableItems.MovieCarousal
 import com.ravi.exploremovie.ui.composableItems.PageIndicatorDots
 import com.ravi.exploremovie.ui.composableItems.StarCastItem
+import com.ravi.exploremovie.ui.composableItems.ShimmerCarouselSection
+import com.ravi.exploremovie.ui.composableItems.ShimmerMovieRow
+import com.ravi.exploremovie.ui.composableItems.ShimmerGenreRow
 
 @Composable
 fun HomeScreen(
@@ -77,14 +80,13 @@ fun HomeScreen(
                    movieGenres == null || 
                    upcomingMovies == null) || isRetrying
 
-    // Fetch data once when the screen appears
     LaunchedEffect(Unit) {
-        viewModel.fetchDiscoverMovies()
-        viewModel.fetchPopularMovies()
-        viewModel.fetchTopRatedMovies()
-        viewModel.fetchUpcomingMovies()
-        viewModel.fetchTrendingPersons()
-        viewModel.fetchMovieGenres()
+        if (discoverMovies == null) viewModel.fetchDiscoverMovies()
+        if (popularMovies == null) viewModel.fetchPopularMovies()
+        if (topRatedMovies == null) viewModel.fetchTopRatedMovies()
+        if (upcomingMovies == null) viewModel.fetchUpcomingMovies()
+        if (trendingPerson == null) viewModel.fetchTrendingPersons()
+        if (movieGenres == null) viewModel.fetchMovieGenres()
     }
     
     // Reset retrying state after data is loaded
@@ -99,6 +101,9 @@ fun HomeScreen(
             isRetrying = false
         }
     }
+
+    // Remember scroll state across navigation
+    val scrollState = rememberScrollState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Main content
@@ -116,7 +121,9 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                IconButton(onClick = {}) {
+                IconButton(onClick = {
+                    navController.navigate(ScreenRoutes.ProfileScreen.route)
+                }) {
                     Image(
                         painter = painterResource(id = R.drawable.profile),
                         contentDescription = "Profile Icon",
@@ -162,13 +169,36 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (isLoading) {
-                // Use the common LoaderView component
-                LoaderView(
-                    message = if (isRetrying) "Refreshing content..." else "Loading movies...",
-                    tint = Color.White
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(top = 16.dp)
+                ) {
+                    // Carousel shimmer
+                    ShimmerCarouselSection()
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Genre row shimmer
+                    ShimmerGenreRow()
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Popular movies shimmer
+                    ShimmerMovieRow()
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Trending persons shimmer
+                    ShimmerMovieRow()
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Upcoming movies shimmer
+                    ShimmerMovieRow()
+                }
             } else {
-                // Check if there are any errors
                 val hasError = discoverMovies?.isFailure == true || 
                               popularMovies?.isFailure == true || 
                               trendingPerson?.isFailure == true || 
@@ -234,37 +264,35 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(scrollState) // Use remembered scroll state
                     ) {
                         // Movie Carousel
                         val movies = discoverMovies?.getOrNull()?.results ?: emptyList()
                         if (movies.isNotEmpty()) {
                             val pagerState = rememberPagerState { movies.size }
 
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    MovieCarousal(
-                                        banners = movies,
-                                        pagerState = pagerState,
-                                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                                        onBannerClick = { movie ->
-                                            movie.id.let { movieId ->
-                                                navController.navigate("${ScreenRoutes.DetailsScreen.route}/$movieId")
-                                            }
+                                MovieCarousal(
+                                    banners = movies,
+                                    pagerState = pagerState,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onBannerClick = { movie ->
+                                        movie.id.let { movieId ->
+                                            navController.navigate("${ScreenRoutes.DetailsScreen.route}/$movieId")
                                         }
-                                    )
-                                    PageIndicatorDots(
-                                        totalDots = movies.size,
-                                        selectedIndex = pagerState.currentPage,
-                                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                                    )
-                                }
+                                    }
+                                )
+                                
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
+                                PageIndicatorDots(
+                                    totalDots = movies.size,
+                                    selectedIndex = pagerState.currentPage,
+                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                )
                             }
                         }
 

@@ -7,11 +7,11 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.MediaStore
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravi.exploremovie.common.localVideo.VideoItem
 import kotlinx.coroutines.Dispatchers
@@ -19,17 +19,24 @@ import kotlinx.coroutines.launch
 
 class DownloadsViewModel(application: Application) : AndroidViewModel(application) {
 
+    companion object {
+        private const val TAG = "DownloadsViewModel"
+    }
+
     private val _videos = MutableLiveData<List<VideoItem>>()
     val videos: LiveData<List<VideoItem>> = _videos
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _hasPermission = MutableLiveData(true) // default assume true
+    private val _hasPermission = MutableLiveData(true)
     val hasPermission: LiveData<Boolean> = _hasPermission
 
-    // Track if videos have been loaded to avoid unnecessary reloading
-    private var videosLoaded = false
+    private var videosLoadedInSession = false
+
+    init {
+        Log.d(TAG, "DownloadsViewModel initialized")
+    }
 
     fun checkPermission(context: Context) {
         val granted = ContextCompat.checkSelfPermission(
@@ -41,25 +48,44 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun loadVideos(forceReload: Boolean = false) {
-        // Skip loading if already loaded and not forcing reload
-        if (videosLoaded && !forceReload) {
+        if (videosLoadedInSession && !forceReload) {
+            Log.d(TAG, "Videos already loaded in this session, skipping...")
             return
         }
 
+        Log.d(TAG, "Loading videos... (forceReload: $forceReload)")
+        
         viewModelScope.launch(Dispatchers.IO) {
-            _isLoading.postValue(true)  // show loader
-            val videoList = getAllVideos(getApplication<Application>().applicationContext)
-            _videos.postValue(videoList)
-            _isLoading.postValue(false) // hide loader
-            videosLoaded = true
+            _isLoading.postValue(true)
+            
+            try {
+                val videoList = getAllVideos(getApplication<Application>().applicationContext)
+                _videos.postValue(videoList)
+                videosLoadedInSession = true
+                Log.d(TAG, "Videos loaded successfully: ${videoList.size} items")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading videos", e)
+                _videos.postValue(emptyList())
+            } finally {
+                _isLoading.postValue(false)
+            }
         }
     }
-
     fun refreshVideos() {
+        Log.d(TAG, "Refresh requested by user")
         loadVideos(forceReload = true)
     }
-}
 
+    fun isDataLoaded(): Boolean {
+        return videosLoadedInSession && !_videos.value.isNullOrEmpty()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.d(TAG, "DownloadsViewModel cleared")
+        videosLoadedInSession = false
+    }
+}
 
 @SuppressLint("Range")
 fun getAllVideos(context: Context): List<VideoItem> {
@@ -114,4 +140,3 @@ fun getAllVideos(context: Context): List<VideoItem> {
     }
     return videoList
 }
-

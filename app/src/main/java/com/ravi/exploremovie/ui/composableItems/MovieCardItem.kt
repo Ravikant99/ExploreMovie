@@ -73,8 +73,8 @@ fun MovieCardItem(
                     contentDescription = movie.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
-                    placeholder = painterResource(id = R.drawable.spiderman),
-                    error = painterResource(id = R.drawable.spiderman)
+                    placeholder = painterResource(id = R.drawable.placeholder_movie),
+                    error = painterResource(id = R.drawable.placeholder_movie)
                 )
                 
                 // Rating badge

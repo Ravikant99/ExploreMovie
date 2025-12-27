@@ -63,13 +63,13 @@ fun StarCastItem(
                     contentDescription = personResult.name ?: "Actor",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
-                    placeholder = painterResource(id = R.drawable.profile),
-                    error = painterResource(id = R.drawable.profile)
+                    placeholder = painterResource(id = R.drawable.placeholder_profile),
+                    error = painterResource(id = R.drawable.placeholder_profile)
                 )
             } else {
                 // Placeholder
                 Image(
-                    painter = painterResource(id = R.drawable.profile),
+                    painter = painterResource(id = R.drawable.placeholder_profile),
                     contentDescription = "Actor Placeholder",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

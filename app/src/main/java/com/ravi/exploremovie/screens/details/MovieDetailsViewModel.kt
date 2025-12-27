@@ -19,6 +19,9 @@ class MovieDetailsViewModel : ViewModel() {
     private val repository = HomeRepository()
     private val TAG = "MovieDetailsViewModel"
 
+    private val movieDetailsCache = mutableMapOf<Int, MovieDetails>()
+    private val trailerCache = mutableMapOf<Int, Resource<TrailerResponse>>()
+
     // Movie details state
     private val _currentMovieDetails = MutableStateFlow<MovieDetails?>(null)
     val currentMovieDetails: StateFlow<MovieDetails?> = _currentMovieDetails.asStateFlow()
@@ -50,11 +53,21 @@ class MovieDetailsViewModel : ViewModel() {
     val trailerState: StateFlow<Resource<TrailerResponse>> = _trailerState.asStateFlow()
 
     init {
-        fetchPopularMovies()
-        fetchGenres()
+        if (_popularMovies.value.isEmpty()) {
+            fetchPopularMovies()
+        }
+        if (_genres.value.isEmpty()) {
+            fetchGenres()
+        }
     }
 
     fun fetchMovieDetails(movieId: Int) {
+        movieDetailsCache[movieId]?.let { cachedDetails ->
+            _currentMovieDetails.value = cachedDetails
+            _isLoading.value = false
+            return
+        }
+
         _isLoading.value = true
         _error.value = null
 
@@ -62,6 +75,7 @@ class MovieDetailsViewModel : ViewModel() {
             try {
                 val result = repository.getMovieDetails(movieId)
                 result.onSuccess { movieDetails ->
+                    movieDetailsCache[movieId] = movieDetails
                     _currentMovieDetails.value = movieDetails
                 }.onFailure { exception ->
                     Log.e(exception.toString(), "Error fetching movie details")
@@ -77,6 +91,12 @@ class MovieDetailsViewModel : ViewModel() {
     }
 
     fun fetchMovieTrailer(movieId: Int) {
+        trailerCache[movieId]?.let { cachedTrailer ->
+            _trailerState.value = cachedTrailer
+            _isTrailerLoading.value = false
+            return
+        }
+
         _isTrailerLoading.value = true
         _trailerError.value = null
         _trailerState.value = Resource.Loading()
@@ -85,7 +105,9 @@ class MovieDetailsViewModel : ViewModel() {
             try {
                 val result = repository.getMovieTrailer(movieId)
                 result.onSuccess { trailerResponse ->
-                    _trailerState.value = Resource.Success(trailerResponse)
+                    val resource = Resource.Success(trailerResponse)
+                    trailerCache[movieId] = resource
+                    _trailerState.value = resource
                     if (trailerResponse.results.isNullOrEmpty()) {
                         _trailerError.value = "No trailers available"
                     }
@@ -94,6 +116,7 @@ class MovieDetailsViewModel : ViewModel() {
                     _trailerState.value = Resource.Error(exception.message ?: "Unknown error")
                     _trailerError.value = "Failed to fetch trailer: ${exception.message}"
                 }
+
             } catch (e: Exception) {
                 Log.e(e.toString(), "Exception in fetchMovieTrailer")
                 _trailerState.value = Resource.Error(e.message ?: "Unknown error")

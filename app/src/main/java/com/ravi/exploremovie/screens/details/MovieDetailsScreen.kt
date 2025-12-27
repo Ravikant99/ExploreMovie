@@ -1,5 +1,8 @@
 package com.ravi.exploremovie.screens.details
 
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +45,7 @@ import com.ravi.exploremovie.ui.composableItems.AppIcons
 import com.ravi.exploremovie.ui.composableItems.BottomNavigationBar
 import com.ravi.exploremovie.ui.composableItems.CastMemberItem
 import com.ravi.exploremovie.ui.composableItems.LoaderView
+import com.ravi.exploremovie.ui.composableItems.ShimmerMovieDetailsScreen
 import com.ravi.exploremovie.ui.theme.*
 import com.ravi.exploremovie.utils.ConstantUtils
 import androidx.compose.foundation.lazy.LazyRow
@@ -61,6 +66,9 @@ fun MovieDetailsScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val trailerState by viewModel.trailerState.collectAsState()
+    
+    // Get context for opening YouTube
+    val context = LocalContext.current
 
     // Fetch movie details if we have a valid ID
     LaunchedEffect(movieId) {
@@ -78,11 +86,7 @@ fun MovieDetailsScreen(
             .background(DarkBackground)
     ) {
         if (isLoading) {
-            // Show loading view
-            LoaderView(
-                message = "Loading movie details...",
-                tint = Color.White
-            )
+            ShimmerMovieDetailsScreen()
         } else if (currentMovieDetails == null && error != null) {
             // Show error state
             Column(
@@ -147,12 +151,12 @@ fun MovieDetailsScreen(
                             contentDescription = movie.title ?: "Movie poster",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize(),
-                            loading = placeholder(R.drawable.spiderman),
-                            failure = placeholder(R.drawable.spiderman)
+                            loading = placeholder(R.drawable.placeholder_movie),
+                            failure = placeholder(R.drawable.placeholder_movie)
                         )
                     } else {
                         Image(
-                            painter = painterResource(id = R.drawable.spiderman),
+                            painter = painterResource(id = R.drawable.placeholder_movie),
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
@@ -247,12 +251,12 @@ fun MovieDetailsScreen(
                                     contentDescription = movie.title ?: "Movie poster",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize(),
-                                    loading = placeholder(R.drawable.spiderman),
-                                    failure = placeholder(R.drawable.spiderman)
+                                    loading = placeholder(R.drawable.placeholder_movie),
+                                    failure = placeholder(R.drawable.placeholder_movie)
                                 )
                             } else {
                                 Image(
-                                    painter = painterResource(id = R.drawable.spiderman),
+                                    painter = painterResource(id = R.drawable.placeholder_movie),
                                     contentDescription = "Movie poster",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()
@@ -313,21 +317,33 @@ fun MovieDetailsScreen(
                                         is Resource.Success -> {
                                             val trailerKey = viewModel.getFirstTrailerKey()
                                             if (trailerKey != null) {
-                                                navController.navigate("${ScreenRoutes.YoutubePlayerScreen.route}/$trailerKey")
+                                                // Open directly in YouTube app or browser
+                                                openVideoInYouTube(context, trailerKey)
                                             } else {
                                                 // Show "No YouTube trailer available" message
+                                                Toast.makeText(
+                                                    context,
+                                                    "No trailer available",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
                                             }
                                         }
                                         is Resource.Error -> {
                                             // Show error message
+                                            Toast.makeText(
+                                                context,
+                                                "Failed to load trailer",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
-//                                        Resource.Loading() -> {
-//                                            // Optionally show loading state
-//                                        }
-
-                                        is Resource.Error -> TODO()
-                                        is Resource.Loading -> TODO()
-                                        is Resource.Success -> TODO()
+                                        is Resource.Loading -> {
+                                            // Optionally show loading state
+                                            Toast.makeText(
+                                                context,
+                                                "Loading trailer...",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
                                     }
                                 },
                                 modifier = Modifier
@@ -513,6 +529,21 @@ fun ActionButton(icon: androidx.compose.ui.graphics.vector.ImageVector, onClick:
             tint = TextPrimary,
             modifier = Modifier.size(24.dp)
         )
+    }
+}
+
+private fun openVideoInYouTube(context: android.content.Context, videoId: String) {
+    try {
+        // Try to open in YouTube app first
+        val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$videoId"))
+        appIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(appIntent)
+        Toast.makeText(context, "Opening in YouTube app...", Toast.LENGTH_SHORT).show()
+    } catch (e: Exception) {
+        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=$videoId"))
+        webIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(webIntent)
+        Toast.makeText(context, "Opening in browser...", Toast.LENGTH_SHORT).show()
     }
 }
 

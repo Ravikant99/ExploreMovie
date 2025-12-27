@@ -194,19 +194,22 @@ private fun MovieGridWithPagination(
     onLoadMore: () -> Unit
 ) {
     val gridState = rememberLazyGridState()
-    
-    // Check if we need to load more data
-    val shouldLoadMore = remember {
-        derivedStateOf {
-            val lastVisibleItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            lastVisibleItem >= movies.size - 10 && currentPage < totalPages && !isPaginationLoading
+
+    LaunchedEffect(gridState) {
+        snapshotFlow {
+            val layoutInfo = gridState.layoutInfo
+            val totalItems = layoutInfo.totalItemsCount
+            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+
+            lastVisibleItemIndex >= (totalItems - 4)
         }
-    }
-    
-    // Load more data when we reach near the end of the list
-    LaunchedEffect(shouldLoadMore.value) {
-        if (shouldLoadMore.value) {
-            onLoadMore()
+        .collect { shouldLoadMore ->
+            if (shouldLoadMore && 
+                currentPage < totalPages && 
+                !isPaginationLoading &&
+                movies.isNotEmpty()) {
+                onLoadMore()
+            }
         }
     }
     
@@ -214,12 +217,21 @@ private fun MovieGridWithPagination(
         LazyVerticalGrid(
             state = gridState,
             columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(12.dp),
+            contentPadding = PaddingValues(
+                start = 12.dp,
+                end = 12.dp,
+                top = 12.dp,
+                bottom = if (isPaginationLoading) 60.dp else 12.dp // Extra space for loading indicator
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(movies) { movie ->
+            items(
+                count = movies.size,
+                key = { index -> "${movies[index].id}_$index" } // Unique key using ID + index
+            ) { index ->
+                val movie = movies[index]
                 MovieCardItem(
                     movie = movie,
                     onItemClick = {
@@ -275,19 +287,22 @@ private fun PersonsGridWithPagination(
     onLoadMore: () -> Unit
 ) {
     val gridState = rememberLazyGridState()
-    
-    // Check if we need to load more data
-    val shouldLoadMore = remember {
-        derivedStateOf {
-            val lastVisibleItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            lastVisibleItem >= persons.size - 10 && currentPage < totalPages && !isPaginationLoading
+
+    LaunchedEffect(gridState) {
+        snapshotFlow {
+            val layoutInfo = gridState.layoutInfo
+            val totalItems = layoutInfo.totalItemsCount
+            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+
+            lastVisibleItemIndex >= (totalItems - 6)
         }
-    }
-    
-    // Load more data when we reach near the end of the list
-    LaunchedEffect(shouldLoadMore.value) {
-        if (shouldLoadMore.value) {
-            onLoadMore()
+        .collect { shouldLoadMore ->
+            if (shouldLoadMore && 
+                currentPage < totalPages && 
+                !isPaginationLoading &&
+                persons.isNotEmpty()) {
+                onLoadMore()
+            }
         }
     }
     
@@ -295,12 +310,21 @@ private fun PersonsGridWithPagination(
         LazyVerticalGrid(
             state = gridState,
             columns = GridCells.Fixed(3),
-            contentPadding = PaddingValues(12.dp),
+            contentPadding = PaddingValues(
+                start = 12.dp,
+                end = 12.dp,
+                top = 12.dp,
+                bottom = if (isPaginationLoading) 60.dp else 12.dp // Extra space for loading indicator
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(persons) { person ->
+            items(
+                count = persons.size,
+                key = { index -> "${persons[index].id}_$index" } // Unique key using ID + index
+            ) { index ->
+                val person = persons[index]
                 StarCastItem(
                     personResult = person,
                     onItemClick = { }

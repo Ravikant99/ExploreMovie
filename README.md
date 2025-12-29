@@ -1,6 +1,6 @@
 # ExploreMovie 🎬
 
-A modern Android movie exploration app built with Jetpack Compose and Material Design 3.
+A modern Android movie exploration app built with Jetpack Compose and Material Design 3 and TMDB Api.
 
 ## Features ✨
 
@@ -206,8 +206,8 @@ This project is open source and available under the [MIT License](LICENSE).
 ## Contact 📧
 
 For questions or feedback, please reach out to:
-- Email: your.email@example.com
-- GitHub: [@yourusername](https://github.com/yourusername)
+- Email: mail2ravikant99@gmail.com
+- GitHub: [@ravikant99](https://github.com/ravikant99)
 
 ---
 
